@@ -66,7 +66,16 @@ class _NotePageState extends State<NotePage>
         ],
         bottom: _buildTabBar(),
       ),
-      body: _buildNotes(context),
+      body: SingleChildScrollView(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: 1920,
+            height: 1080,
+            child: _buildNotes(context),
+          ),
+        ),
+      ),
     );
   }
 
