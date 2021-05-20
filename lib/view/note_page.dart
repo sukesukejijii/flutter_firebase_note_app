@@ -9,6 +9,7 @@ import 'package:flutter_firebase_note_app/provider/tabIndex.dart';
 import 'package:flutter_firebase_note_app/provider/user.dart';
 import 'package:flutter_firebase_note_app/view/widget/note_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NotePage extends StatefulWidget {
   @override
@@ -45,7 +46,8 @@ class _NotePageState extends State<NotePage>
         actions: [
           context.read(userNotifierProvider).user!.isAnonymous
               ? Tooltip(
-                  message: context.read(userNotifierProvider).user!.uid,
+                  message:
+                      'User ID: ${context.read(userNotifierProvider).user!.uid}',
                   child: CircleAvatar(
                     child: Icon(Icons.person),
                     backgroundColor: Colors.amber,
@@ -63,17 +65,18 @@ class _NotePageState extends State<NotePage>
                 ),
           SizedBox(width: 21),
           _buildSignOutButton(),
+          TextButton(
+            onPressed: () => _launchURL(
+                'https://github.com/sukesukejijii/flutter_firebase_note_app'),
+            child: Image.asset('assets/github.png'),
+          ),
         ],
         bottom: _buildTabBar(),
       ),
       body: SingleChildScrollView(
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: 1920,
-            height: 1080,
-            child: _buildNotes(context),
-          ),
+          child: _buildNotes(context),
         ),
       ),
     );
@@ -94,16 +97,20 @@ class _NotePageState extends State<NotePage>
         cursor: SystemMouseCursors.copy,
         onHover: (event) =>
             offset = Offset(event.position.dx, event.position.dy - 50),
-        child: Consumer(
-          builder: (context, watch, child) {
-            final notes = watch(notesProvider);
+        child: SizedBox(
+          width: 1920,
+          height: 1080,
+          child: Consumer(
+            builder: (context, watch, child) {
+              final notes = watch(notesProvider);
 
-            return Stack(
-              children: <NoteWidget>[
-                for (var note in notes) NoteWidget(note),
-              ],
-            );
-          },
+              return Stack(
+                children: <NoteWidget>[
+                  for (var note in notes) NoteWidget(note),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -164,5 +171,11 @@ class _NotePageState extends State<NotePage>
         ),
       ],
     );
+  }
+
+  Future<void> _launchURL(String url) async {
+    await canLaunch(url)
+        ? await launch(url)
+        : throw Exception('Could not launch');
   }
 }
